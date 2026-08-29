@@ -137,7 +137,7 @@ export function IngredientesSection() {
       />
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {CATEGORIAS.map((cat) => {
-          const items = INGREDIENTES.filter((i) => i.categoria === cat && necesario[i.id] > 0);
+          const items = INGREDIENTES.filter((i) => i.categoria === cat && (necesario[i.id] ?? 0) > 0);
           if (!items.length) return null;
           return (
             <div key={cat} className="rounded-lg bg-secondary/60 p-3">
@@ -149,9 +149,9 @@ export function IngredientesSection() {
                   <li key={i.id} className="flex justify-between gap-2 text-base">
                     <span>{i.nombre}</span>
                     <span className="font-bold tabular-nums">
-                      {necesario[i.id] < 1
-                        ? `${fmt(necesario[i.id] * 1000, 0)} g`
-                        : `${fmt(necesario[i.id])} ${i.unidad}`}
+                      {(necesario[i.id] ?? 0) < 1
+                        ? `${fmt((necesario[i.id] ?? 0) * 1000, 0)} g`
+                        : `${fmt(necesario[i.id] ?? 0)} ${i.unidad}`}
                     </span>
                   </li>
                 ))}
@@ -279,7 +279,7 @@ export function StockSection({
             <tbody>
               {PRODUCTOS_TERMINADOS.map((id) => (
                 <tr key={id} className="border-t border-border">
-                  <td className="py-2 text-base">{RECETAS[id].nombre}</td>
+                  <td className="py-2 text-base">{RECETAS[id]?.nombre}</td>
                   <td className="py-2 text-right font-bold tabular-nums">
                     {fmt(stockPt[id] ?? 0)} kg
                   </td>
@@ -350,7 +350,7 @@ export function StockSection({
         onOpenChange={(v) => !v && setDialogo(null)}
         titulo={
           dialogo?.tipo === "pt"
-            ? `Registrar producción · ${dialogo ? RECETAS[dialogo.id].nombre : ""}`
+            ? `Registrar producción · ${dialogo ? RECETAS[dialogo.id]?.nombre : ""}`
             : `Registrar entrada · ${dialogo ? INGREDIENTE_POR_ID[dialogo.id]?.nombre : ""}`
         }
         etiqueta={
@@ -416,7 +416,7 @@ export function TendenciaSection({ stockMp }: { stockMp: Record<string, number> 
                   <div className="flex items-baseline justify-between">
                     <span className="text-base font-semibold">{nombreProducto(t.cremaId)}</span>
                     <span className={`text-xl font-bold ${color}`}>
-                      {flecha} {t.semanas[3]}
+                      {flecha} {t.semanas[t.semanas.length - 1]}
                     </span>
                   </div>
                   <div className={color}>

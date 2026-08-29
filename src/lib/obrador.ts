@@ -270,7 +270,7 @@ export function calcularSemielaborados(ventas: Venta[]) {
     const f = FORMATOS[v.formato];
     const cremaId = v.cremaId === "matcha_shake" ? "crema_vainilla" : v.cremaId;
     kg[cremaId] = (kg[cremaId] ?? 0) + (v.unidades * f.crema_g) / 1000;
-    if (f.crumble_g > 0) kg.crumble = (kg.crumble ?? 0) + (v.unidades * f.crumble_g) / 1000;
+    if (f.crumble_g > 0) kg['crumble'] = (kg['crumble'] ?? 0) + (v.unidades * f.crumble_g) / 1000;
   }
   return kg;
 }
@@ -292,7 +292,7 @@ export function calcularIngredientes(ventas: Venta[]) {
       necesario[ing] = (necesario[ing] ?? 0) + (v.unidades * gramos) / 1000;
     }
     if (v.cremaId === "matcha_shake") {
-      necesario.matcha = (necesario.matcha ?? 0) + (v.unidades * 2) / 1000;
+      necesario['matcha'] = (necesario['matcha'] ?? 0) + (v.unidades * 2) / 1000;
     }
   }
   return necesario;
@@ -319,8 +319,9 @@ export function calcularDesviacion(
 }
 
 export function tendenciaEstado(semanas: number[]) {
-  const [, , previa, ultima] = semanas;
-  const delta = ((ultima - previa) / previa) * 100;
+  const previa = semanas[semanas.length - 2] ?? 0;
+  const ultima = semanas[semanas.length - 1] ?? 0;
+  const delta = previa === 0 ? 0 : ((ultima - previa) / previa) * 100;
   if (delta > 2) return "sube" as const;
   if (delta < -2) return "baja" as const;
   return "estable" as const;
