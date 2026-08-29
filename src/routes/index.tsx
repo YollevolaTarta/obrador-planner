@@ -89,7 +89,8 @@ function Dashboard() {
           </span>
           <h1 className="text-lg font-bold sm:text-xl">Dashboard obrador</h1>
           <span className="text-sm text-muted-foreground">
-            Jornada semanal · 7 h · {totalUnidades} uds a producir
+            Jornada semanal · 7 h · {totalKg.toFixed(1)} kg a producir
+
           </span>
         </div>
       </header>
