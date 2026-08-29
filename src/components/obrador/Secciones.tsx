@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import {
   CATEGORIAS,
-  FORMATOS,
   INGREDIENTES,
   INGREDIENTE_POR_ID,
   PRODUCTOS_TERMINADOS,
@@ -10,11 +9,12 @@ import {
   STOCK_MP_ANTERIOR,
   TENDENCIA,
   VENTAS_SEMANA_PASADA,
+  calcularConsumoElaboraciones,
   calcularDesviacion,
   calcularIngredientes,
   calcularProduccion,
-  calcularSemielaborados,
   fmt,
+  nombreElaboracion,
   nombreProducto,
   tendenciaEstado,
 } from "@/lib/obrador";
