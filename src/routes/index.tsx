@@ -1,24 +1,126 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import {
+  STOCK_MP_INICIAL,
+  STOCK_PT_INICIAL,
+  VENTAS_SEMANA_PASADA,
+  calcularProduccion,
+} from "@/lib/obrador";
+import {
+  IngredientesSection,
+  ProduccionSection,
+  StockSection,
+  TendenciaSection,
+  VentasSection,
+} from "@/components/obrador/Secciones";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
-  component: Index,
+  head: () => ({
+    meta: [
+      { title: "Dashboard Obrador · Yo Llevo la Tarta" },
+      {
+        name: "description",
+        content:
+          "Panel de producción y stock del obrador: ventas, producción semanal, ingredientes, compras y control de desviación de receta.",
+      },
+      { property: "og:title", content: "Dashboard Obrador · Yo Llevo la Tarta" },
+      {
+        property: "og:description",
+        content:
+          "Gestión semanal de producción, materias primas y desviación de receta para el obrador.",
+      },
+    ],
+  }),
+  component: Dashboard,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
+const KEY = "yllt_obrador_v1";
+
+type Estado = {
+  stockMp: Record<string, number>;
+  stockPt: Record<string, number>;
+  actualizado: Record<string, string>;
+};
+
+const inicial: Estado = {
+  stockMp: STOCK_MP_INICIAL,
+  stockPt: STOCK_PT_INICIAL,
+  actualizado: {},
+};
+
+function hoy() {
+  return new Date().toLocaleString("es-ES", {
+    day: "2-digit",
+    month: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function Dashboard() {
+  const [estado, setEstado] = useState<Estado>(inicial);
+
+  useEffect(() => {
+    const raw = localStorage.getItem(KEY);
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw) as Estado;
+        setEstado({ ...inicial, ...parsed });
+      } catch {
+        /* datos corruptos: se usan los iniciales */
+      }
+    }
+  }, []);
+
+  function guardar(next: Estado) {
+    setEstado(next);
+    localStorage.setItem(KEY, JSON.stringify(next));
+  }
+
+  const totalUnidades = calcularProduccion(VENTAS_SEMANA_PASADA).reduce(
+    (a, b) => a + b.unidades,
+    0,
+  );
+
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="min-h-screen bg-background text-foreground">
+      <header className="sticky top-0 z-10 border-b border-border bg-background/95 px-4 py-3 backdrop-blur sm:px-6">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <span className="text-sm font-bold uppercase tracking-[0.2em] text-primary">
+            Yo Llevo la Tarta
+          </span>
+          <h1 className="text-lg font-bold sm:text-xl">Dashboard obrador</h1>
+          <span className="text-sm text-muted-foreground">
+            Jornada semanal · 7 h · {totalUnidades} uds a producir
+          </span>
+        </div>
+      </header>
+
+      <main className="mx-auto flex max-w-[1600px] flex-col gap-5 px-3 py-5 sm:px-6">
+        <VentasSection />
+        <ProduccionSection />
+        <IngredientesSection />
+        <StockSection
+          stockMp={estado.stockMp}
+          stockPt={estado.stockPt}
+          actualizado={estado.actualizado}
+          onEntradaMp={(id, cantidad) =>
+            guardar({
+              ...estado,
+              stockMp: { ...estado.stockMp, [id]: (estado.stockMp[id] ?? 0) + cantidad },
+              actualizado: { ...estado.actualizado, [id]: hoy() },
+            })
+          }
+          onProduccionPt={(id, cantidad) =>
+            guardar({
+              ...estado,
+              stockPt: { ...estado.stockPt, [id]: cantidad },
+              actualizado: { ...estado.actualizado, [`pt_${id}`]: hoy() },
+            })
+          }
+        />
+        <TendenciaSection stockMp={estado.stockMp} />
+      </main>
     </div>
   );
 }
