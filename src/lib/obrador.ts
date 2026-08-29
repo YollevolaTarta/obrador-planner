@@ -146,27 +146,36 @@ export const FORMATOS: Record<
   },
 };
 
-/** Líneas de venta: producto (crema base) + formato. */
-export type Venta = { cremaId: string; formato: FormatoId; unidades: number };
+/** Líneas de venta: crema base + formato + topping (elaboración) opcional. */
+export type Venta = {
+  cremaId: string;
+  formato: FormatoId;
+  toppingId?: string;
+  unidades: number;
+};
 
 export const VENTAS_SEMANA_PASADA: Venta[] = [
-  { cremaId: "crema_vainilla", formato: "abierta", unidades: 87 },
-  { cremaId: "crema_coulant", formato: "abierta", unidades: 74 },
-  { cremaId: "crema_lemon", formato: "abierta", unidades: 63 },
-  { cremaId: "crema_ny", formato: "abierta", unidades: 58 },
-  { cremaId: "crema_basque", formato: "abierta", unidades: 41 },
-  { cremaId: "crema_vainilla", formato: "lata", unidades: 34 },
-  { cremaId: "crema_coulant", formato: "lata", unidades: 28 },
-  { cremaId: "crema_vainilla", formato: "shake", unidades: 31 },
-  { cremaId: "crema_coulant", formato: "shake", unidades: 27 },
-  { cremaId: "matcha_shake", formato: "shake", unidades: 19 },
+  { cremaId: "crema_vainilla", formato: "abierta", toppingId: "ganache_cafe", unidades: 87 },
+  { cremaId: "crema_coulant", formato: "abierta", toppingId: "crema_frutos_secos", unidades: 74 },
+  { cremaId: "crema_lemon", formato: "abierta", toppingId: "mermelada", unidades: 63 },
+  { cremaId: "crema_ny", formato: "abierta", toppingId: "ganache_frutas", unidades: 58 },
+  { cremaId: "crema_basque", formato: "abierta", toppingId: "crema_pistacho", unidades: 41 },
+  { cremaId: "crema_vainilla", formato: "lata", toppingId: "mermelada", unidades: 34 },
+  { cremaId: "crema_coulant", formato: "lata", toppingId: "crema_pistacho", unidades: 28 },
+  { cremaId: "crema_vainilla", formato: "shake", toppingId: "ganache_matcha", unidades: 31 },
+  { cremaId: "crema_coulant", formato: "shake", toppingId: "ganache_cafe", unidades: 27 },
+  { cremaId: "crema_vainilla", formato: "shake", toppingId: "ganache_matcha", unidades: 19 },
 ];
 
 export function nombreProducto(cremaId: string) {
-  if (cremaId === "matcha_shake") return "Matcha";
   const n = RECETAS[cremaId]?.nombre.replace("Crema ", "") ?? cremaId;
   return n.charAt(0).toUpperCase() + n.slice(1);
 }
+
+export function nombreElaboracion(id: string) {
+  return RECETAS[id]?.nombre ?? id;
+}
+
 
 export const TENDENCIA: { cremaId: string; semanas: number[] }[] = [
   { cremaId: "crema_vainilla", semanas: [70, 75, 81, 87] },
