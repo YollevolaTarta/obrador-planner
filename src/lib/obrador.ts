@@ -164,7 +164,8 @@ export const VENTAS_SEMANA_PASADA: Venta[] = [
 
 export function nombreProducto(cremaId: string) {
   if (cremaId === "matcha_shake") return "Matcha";
-  return RECETAS[cremaId]?.nombre.replace("Crema ", "") ?? cremaId;
+  const n = RECETAS[cremaId]?.nombre.replace("Crema ", "") ?? cremaId;
+  return n.charAt(0).toUpperCase() + n.slice(1);
 }
 
 export const TENDENCIA: { cremaId: string; semanas: number[] }[] = [
