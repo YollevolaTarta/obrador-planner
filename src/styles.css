@@ -2,6 +2,16 @@
 @source "../src";
 @import "tw-animate-css";
 
+@theme {
+  --font-sans:
+    "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-brand-pink: var(--brand-pink);
+  --color-brand-red: var(--brand-red);
+}
+
+
 @custom-variant dark (&:is(.dark *));
 
 /*
