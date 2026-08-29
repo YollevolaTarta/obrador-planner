@@ -268,21 +268,34 @@ export const STOCK_PT_INICIAL: Record<string, number> = {
 
 /* ---------------- Cálculos ---------------- */
 
-/** Producción de esta semana = ventas de los últimos 7 días. */
-export function calcularProduccion(ventas: Venta[]) {
-  return [...ventas].sort((a, b) => b.unidades - a.unidades);
-}
-
-/** Kg de producto semielaborado (cremas + crumble) necesarios. */
+/**
+ * Kg consumidos de cada elaboración (crumble, cremas, ganaches, mermeladas...)
+ * descomponiendo cada venta en gramos por capa.
+ */
 export function calcularSemielaborados(ventas: Venta[]) {
   const kg: Record<string, number> = {};
+  const add = (id: string, gramos: number) => {
+    if (gramos > 0) kg[id] = (kg[id] ?? 0) + gramos / 1000;
+  };
   for (const v of ventas) {
     const f = FORMATOS[v.formato];
-    const cremaId = v.cremaId === "matcha_shake" ? "crema_vainilla" : v.cremaId;
-    kg[cremaId] = (kg[cremaId] ?? 0) + (v.unidades * f.crema_g) / 1000;
-    if (f.crumble_g > 0) kg['crumble'] = (kg['crumble'] ?? 0) + (v.unidades * f.crumble_g) / 1000;
+    add(v.cremaId, v.unidades * f.crema_g);
+    add("crumble", v.unidades * f.crumble_g);
+    if (v.toppingId) add(v.toppingId, v.unidades * f.topping_g);
   }
   return kg;
+}
+
+/** Kg consumidos la semana pasada, ordenados de mayor a menor. */
+export function calcularConsumoElaboraciones(ventas: Venta[]) {
+  return Object.entries(calcularSemielaborados(ventas))
+    .map(([id, kg]) => ({ id, kg }))
+    .sort((a, b) => b.kg - a.kg);
+}
+
+/** Producción de esta semana = kg consumidos los últimos 7 días. */
+export function calcularProduccion(ventas: Venta[]) {
+  return calcularConsumoElaboraciones(ventas);
 }
 
 /** Kg de materia prima necesarios para la producción de la semana. */
@@ -295,18 +308,16 @@ export function calcularIngredientes(ventas: Venta[]) {
       necesario[ing] = (necesario[ing] ?? 0) + kg * pct;
     }
   }
-  // Extras del cake shake
+  // Extras del cake shake (bebida vegetal, etc.)
   for (const v of ventas) {
     const f = FORMATOS[v.formato];
     for (const [ing, gramos] of Object.entries(f.extras)) {
       necesario[ing] = (necesario[ing] ?? 0) + (v.unidades * gramos) / 1000;
     }
-    if (v.cremaId === "matcha_shake") {
-      necesario['matcha'] = (necesario['matcha'] ?? 0) + (v.unidades * 2) / 1000;
-    }
   }
   return necesario;
 }
+
 
 export function calcularDesviacion(
   stockAnterior: Record<string, number>,
