@@ -102,7 +102,7 @@ export function IngredientesSection() {
       <SectionTitle
         n={3}
         title="Ingredientes necesarios"
-        note="Unidades a producir × receta × gramaje"
+        note="Kg de cada elaboración × proporción de la receta"
       />
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {CATEGORIAS.map((cat) => {
