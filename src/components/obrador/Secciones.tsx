@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import {
   CATEGORIAS,
-  FORMATOS,
   INGREDIENTES,
   INGREDIENTE_POR_ID,
   PRODUCTOS_TERMINADOS,
@@ -10,11 +9,12 @@ import {
   STOCK_MP_ANTERIOR,
   TENDENCIA,
   VENTAS_SEMANA_PASADA,
+  calcularConsumoElaboraciones,
   calcularDesviacion,
   calcularIngredientes,
   calcularProduccion,
-  calcularSemielaborados,
   fmt,
+  nombreElaboracion,
   nombreProducto,
   tendenciaEstado,
 } from "@/lib/obrador";
@@ -42,31 +42,29 @@ export function SectionTitle({ n, title, note }: { n: number; title: string; not
 }
 
 export function VentasSection() {
-  const ventas = [...VENTAS_SEMANA_PASADA].sort((a, b) => b.unidades - a.unidades);
-  const max = Math.max(...ventas.map((v) => v.unidades));
+  const consumo = calcularConsumoElaboraciones(VENTAS_SEMANA_PASADA);
+  const max = Math.max(...consumo.map((c) => c.kg), 0.001);
+  const total = consumo.reduce((a, b) => a + b.kg, 0);
   return (
     <Card className="gap-0 p-4 sm:p-6">
-      <SectionTitle n={1} title="Ventas semana pasada" />
+      <SectionTitle
+        n={1}
+        title="Ventas semana pasada"
+        note={`Kg consumidos por elaboración · ${fmt(total)} kg en total`}
+      />
       <div className="space-y-2">
-        {ventas.map((v, i) => (
-          <div key={i} className="grid grid-cols-[1fr_auto] items-center gap-3">
+        {consumo.map((c) => (
+          <div key={c.id} className="grid grid-cols-[1fr_auto] items-center gap-3">
             <div>
-              <div className="flex items-baseline justify-between gap-3">
-                <span className="text-base font-semibold sm:text-lg">
-                  {nombreProducto(v.cremaId)}
-                  <span className="ml-2 text-sm font-normal text-muted-foreground">
-                    {FORMATOS[v.formato].nombre}
-                  </span>
-                </span>
-              </div>
+              <span className="text-base font-semibold sm:text-lg">{nombreElaboracion(c.id)}</span>
               <div className="mt-1 h-2.5 w-full overflow-hidden rounded-full bg-secondary">
                 <div
                   className="h-full rounded-full bg-primary"
-                  style={{ width: `${(v.unidades / max) * 100}%` }}
+                  style={{ width: `${(c.kg / max) * 100}%` }}
                 />
               </div>
             </div>
-            <span className="w-14 text-right text-xl font-bold tabular-nums">{v.unidades}</span>
+            <span className="w-24 text-right text-xl font-bold tabular-nums">{fmt(c.kg)} kg</span>
           </div>
         ))}
       </div>
@@ -76,55 +74,26 @@ export function VentasSection() {
 
 export function ProduccionSection() {
   const produccion = calcularProduccion(VENTAS_SEMANA_PASADA);
-  const semi = calcularSemielaborados(VENTAS_SEMANA_PASADA);
+  const total = produccion.reduce((a, b) => a + b.kg, 0);
   return (
     <Card className="gap-0 p-4 sm:p-6">
       <SectionTitle
         n={2}
         title="Producción esta semana"
-        note="Basado en ventas de los últimos 7 días"
+        note={`Kg a producir por elaboración · ${fmt(total)} kg en total`}
       />
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div>
-          <table className="w-full text-left">
-            <thead className="text-sm uppercase tracking-wide text-muted-foreground">
-              <tr>
-                <th className="pb-2">Qué producir</th>
-                <th className="pb-2 text-right">Unidades</th>
-              </tr>
-            </thead>
-            <tbody>
-              {produccion.map((p, i) => (
-                <tr key={i} className="border-t border-border">
-                  <td className="py-2 text-base font-medium sm:text-lg">
-                    {nombreProducto(p.cremaId)}{" "}
-                    <span className="text-sm text-muted-foreground">
-                      · {FORMATOS[p.formato].nombre}
-                    </span>
-                  </td>
-                  <td className="py-2 text-right text-lg font-bold tabular-nums">{p.unidades}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <div>
-          <p className="mb-2 text-sm uppercase tracking-wide text-muted-foreground">
-            Elaboraciones a preparar
-          </p>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-            {Object.entries(semi).map(([id, kg]) => (
-              <div key={id} className="rounded-lg bg-secondary p-3">
-                <p className="text-sm text-muted-foreground">{RECETAS[id]?.nombre ?? id}</p>
-                <p className="text-xl font-bold tabular-nums">{fmt(kg)} kg</p>
-              </div>
-            ))}
+      <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+        {produccion.map((p) => (
+          <div key={p.id} className="rounded-lg bg-secondary p-3">
+            <p className="text-sm text-muted-foreground">{nombreElaboracion(p.id)}</p>
+            <p className="text-xl font-bold tabular-nums">{fmt(p.kg)} kg</p>
           </div>
-        </div>
+        ))}
       </div>
     </Card>
   );
 }
+
 
 export function IngredientesSection() {
   const necesario = calcularIngredientes(VENTAS_SEMANA_PASADA);
@@ -133,7 +102,7 @@ export function IngredientesSection() {
       <SectionTitle
         n={3}
         title="Ingredientes necesarios"
-        note="Unidades a producir × receta × gramaje"
+        note="Kg de cada elaboración × proporción de la receta"
       />
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {CATEGORIAS.map((cat) => {
