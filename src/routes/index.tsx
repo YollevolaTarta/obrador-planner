@@ -77,10 +77,8 @@ function Dashboard() {
     localStorage.setItem(KEY, JSON.stringify(next));
   }
 
-  const totalUnidades = calcularProduccion(VENTAS_SEMANA_PASADA).reduce(
-    (a, b) => a + b.unidades,
-    0,
-  );
+  const totalKg = calcularProduccion(VENTAS_SEMANA_PASADA).reduce((a, b) => a + b.kg, 0);
+
 
   return (
     <div className="min-h-screen bg-background text-foreground">
