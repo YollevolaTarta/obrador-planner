@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export type Row = Record<string, any>;
+export type Row = any;
 
 export function useDatos<T = Row[]>(key: string, fn: () => PromiseLike<{ data: any; error: any }>) {
   return useQuery<T>({
