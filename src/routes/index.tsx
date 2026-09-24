@@ -1,18 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import type { Session } from "@supabase/supabase-js";
+import { sb } from "@/lib/supabase";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Login } from "@/components/obrador/Login";
+import { Cabecera } from "@/components/obrador/Cabecera";
 import {
-  STOCK_MP_INICIAL,
-  STOCK_PT_INICIAL,
-  VENTAS_SEMANA_PASADA,
-  calcularProduccion,
-} from "@/lib/obrador";
-import {
-  IngredientesSection,
-  ProduccionSection,
-  StockSection,
-  TendenciaSection,
-  VentasSection,
-} from "@/components/obrador/Secciones";
+  ComprasTab,
+  DesviacionTab,
+  EnviarTab,
+  ProduccionTab,
+  RecuentoTab,
+  StockTab,
+} from "@/components/obrador/Pestanas";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -20,105 +22,94 @@ export const Route = createFileRoute("/")({
       { title: "Dashboard Obrador · Yo Llevo la Tarta" },
       {
         name: "description",
-        content:
-          "Panel de producción y stock del obrador: ventas, producción semanal, ingredientes, compras y control de desviación de receta.",
+        content: "Recuento, producción, envíos a tienda, stock, compras y desviación de receta del obrador.",
       },
       { property: "og:title", content: "Dashboard Obrador · Yo Llevo la Tarta" },
-      {
-        property: "og:description",
-        content:
-          "Gestión semanal de producción, materias primas y desviación de receta para el obrador.",
-      },
+      { property: "og:description", content: "Gestión diaria del obrador de Yo Llevo la Tarta." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: Dashboard,
+  component: Pagina,
 });
 
-const KEY = "yllt_obrador_v1";
-
-type Estado = {
-  stockMp: Record<string, number>;
-  stockPt: Record<string, number>;
-  actualizado: Record<string, string>;
-};
-
-const inicial: Estado = {
-  stockMp: STOCK_MP_INICIAL,
-  stockPt: STOCK_PT_INICIAL,
-  actualizado: {},
-};
-
-function hoy() {
-  return new Date().toLocaleString("es-ES", {
-    day: "2-digit",
-    month: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-function Dashboard() {
-  const [estado, setEstado] = useState<Estado>(inicial);
+function Pagina() {
+  const [listo, setListo] = useState(false);
+  const [session, setSession] = useState<Session | null>(null);
+  const qc = useQueryClient();
 
   useEffect(() => {
-    const raw = localStorage.getItem(KEY);
-    if (raw) {
-      try {
-        const parsed = JSON.parse(raw) as Estado;
-        setEstado({ ...inicial, ...parsed });
-      } catch {
-        /* datos corruptos: se usan los iniciales */
+    const cliente = sb();
+    cliente.auth.getSession().then(({ data }) => {
+      setSession(data.session);
+      setListo(true);
+    });
+    const { data } = cliente.auth.onAuthStateChange((event, s) => {
+      if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") {
+        qc.clear();
       }
-    }
-  }, []);
+      setSession(s);
+    });
+    return () => data.subscription.unsubscribe();
+  }, [qc]);
 
-  function guardar(next: Estado) {
-    setEstado(next);
-    localStorage.setItem(KEY, JSON.stringify(next));
-  }
+  if (!listo) return <div className="min-h-screen bg-background p-6 text-muted-foreground">Cargando…</div>;
+  if (!session) return <Login />;
+  return <Dashboard email={session.user.email ?? ""} />;
+}
 
-  const totalKg = calcularProduccion(VENTAS_SEMANA_PASADA).reduce((a, b) => a + b.kg, 0);
+const PESTANAS = [
+  ["recuento", "Recuento"],
+  ["produccion", "Producción"],
+  ["enviar", "Enviar a tienda"],
+  ["stock", "Stock"],
+  ["compras", "Compras"],
+  ["desviacion", "Desviación"],
+] as const;
 
+function Dashboard({ email }: { email: string }) {
+  const qc = useQueryClient();
+  const permiso = useQuery({
+    queryKey: ["permiso"],
+    queryFn: async () => {
+      const { data, error } = await sb().from("v_stock_mp").select("materia_prima_id").limit(1);
+      return !error && (data ?? []).length > 0;
+    },
+  });
+
+  if (permiso.isLoading) return <div className="min-h-screen bg-background p-6 text-muted-foreground">Cargando…</div>;
+  if (!permiso.data)
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background px-4 text-center">
+        <p className="text-sm text-muted-foreground">{email}</p>
+        <p className="max-w-md text-xl font-semibold">
+          Tu usuario no tiene permiso para el obrador. Habla con administración.
+        </p>
+        <Button variant="secondary" className="h-12 px-6" onClick={() => sb().auth.signOut()}>
+          Salir
+        </Button>
+      </div>
+    );
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-10 border-b border-border bg-background/95 px-4 py-3 backdrop-blur sm:px-6">
-        <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <span className="text-sm font-bold uppercase tracking-[0.2em] text-primary">
-            Yo Llevo la Tarta
-          </span>
-          <h1 className="text-lg font-bold sm:text-xl">Dashboard obrador</h1>
-          <span className="text-sm text-muted-foreground">
-            Jornada semanal · 7 h · {totalKg.toFixed(1)} kg a producir
-
-          </span>
-        </div>
-      </header>
-
-      <main className="mx-auto flex max-w-[1600px] flex-col gap-5 px-3 py-5 sm:px-6">
-        <VentasSection />
-        <ProduccionSection />
-        <IngredientesSection />
-        <StockSection
-          stockMp={estado.stockMp}
-          stockPt={estado.stockPt}
-          actualizado={estado.actualizado}
-          onEntradaMp={(id, cantidad) =>
-            guardar({
-              ...estado,
-              stockMp: { ...estado.stockMp, [id]: (estado.stockMp[id] ?? 0) + cantidad },
-              actualizado: { ...estado.actualizado, [id]: hoy() },
-            })
-          }
-          onProduccionPt={(id, cantidad) =>
-            guardar({
-              ...estado,
-              stockPt: { ...estado.stockPt, [id]: cantidad },
-              actualizado: { ...estado.actualizado, [`pt_${id}`]: hoy() },
-            })
-          }
-        />
-        <TendenciaSection stockMp={estado.stockMp} />
+      <Cabecera email={email} />
+      <main className="mx-auto max-w-[1600px] px-3 py-5 sm:px-6">
+        <Tabs defaultValue="recuento" onValueChange={() => qc.invalidateQueries()}>
+          <TabsList className="mb-5 flex h-auto w-full flex-wrap gap-1">
+            {PESTANAS.map(([v, l]) => (
+              <TabsTrigger key={v} value={v} className="h-12 flex-1 text-base sm:text-lg">
+                {l}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          <TabsContent value="recuento"><RecuentoTab /></TabsContent>
+          <TabsContent value="produccion"><ProduccionTab /></TabsContent>
+          <TabsContent value="enviar"><EnviarTab /></TabsContent>
+          <TabsContent value="stock"><StockTab /></TabsContent>
+          <TabsContent value="compras"><ComprasTab /></TabsContent>
+          <TabsContent value="desviacion"><DesviacionTab /></TabsContent>
+        </Tabs>
       </main>
     </div>
   );
