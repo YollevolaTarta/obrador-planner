@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { sb } from "@/lib/supabase";
 import { TIPO_LABEL, agrupar, fmt, fmtDia, fmtFecha, parseNum } from "@/lib/obrador";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -17,6 +18,9 @@ function useRefrescar() {
 
 const useStockMp = () => useDatos("v_stock_mp", () => sb().from("v_stock_mp").select("*").order("nombre"));
 const useStockPt = () => useDatos("v_stock_pt", () => sb().from("v_stock_pt").select("*").order("nombre"));
+
+/** Convierte kilos a gramos enteros con separador de miles (es-ES). */
+const fmtG = (kg: number | null | undefined) => Math.round(Number(kg ?? 0) * 1000).toLocaleString("es-ES");
 
 function Mensaje({ m }: { m: { ok: boolean; texto: string } | null }) {
   if (!m) return null;
@@ -325,7 +329,7 @@ export function EnviarTab() {
   });
   const refrescar = useRefrescar();
   const [tienda, setTienda] = useState<string>("");
-  const [kg, setKg] = useState<Record<string, string>>({});
+  const [gr, setGr] = useState<Record<string, string>>({});
   const [msg, setMsg] = useState<{ ok: boolean; texto: string } | null>(null);
   const [guardando, setGuardando] = useState(false);
   const nombreTienda = Object.fromEntries((tiendas.data ?? []).map((t) => [String(t.id), t.nombre]));
@@ -334,18 +338,21 @@ export function EnviarTab() {
     setMsg(null);
     if (!tienda) return setMsg({ ok: false, texto: "Elige una tienda" });
     const p_lineas: Record<string, number> = {};
-    for (const [id, v] of Object.entries(kg)) {
-      const n = parseNum(v);
-      if (n && n > 0) p_lineas[id] = n;
+    for (const [id, v] of Object.entries(gr)) {
+      const sinPuntos = v.trim().replace(/\./g, "");
+      if (sinPuntos === "") continue;
+      if (!/^\d+$/.test(sinPuntos)) return setMsg({ ok: false, texto: "Escribe los gramos sin decimales" });
+      const g = Number(sinPuntos);
+      if (g > 0) p_lineas[id] = g / 1000;
     }
-    if (!Object.keys(p_lineas).length) return setMsg({ ok: false, texto: "Escribe los kg a enviar" });
+    if (!Object.keys(p_lineas).length) return setMsg({ ok: false, texto: "Escribe los gramos a enviar" });
     setGuardando(true);
     const store = (tiendas.data ?? []).find((t) => String(t.id) === tienda)?.id ?? tienda;
     const { error } = await sb().rpc("obrador_enviar_a_tienda", { p_store_id: store, p_lineas });
     setGuardando(false);
     if (error) return setMsg({ ok: false, texto: error.message });
     setMsg({ ok: true, texto: "Envío registrado" });
-    setKg({});
+    setGr({});
     refrescar();
   }
 
@@ -374,9 +381,18 @@ export function EnviarTab() {
                 <div key={r.elaboracion_id} className="flex items-center justify-between gap-2 border-t border-border py-2">
                   <div>
                     <p className="text-base font-medium">{r.nombre}</p>
-                    <p className="text-sm text-muted-foreground">En obrador: {fmt(r.kg)} kg</p>
+                    <p className="text-sm text-muted-foreground">En obrador: {fmtG(r.kg)} g</p>
                   </div>
-                  <NumInput value={kg[r.elaboracion_id] ?? ""} onChange={(v) => setKg({ ...kg, [r.elaboracion_id]: v })} />
+                  <div className="flex items-center gap-2">
+                    <Input
+                      inputMode="numeric"
+                      value={gr[r.elaboracion_id] ?? ""}
+                      placeholder="0"
+                      onChange={(e) => setGr({ ...gr, [r.elaboracion_id]: e.target.value.replace(/[^\d.,]/g, "") })}
+                      className="h-12 w-32 text-right text-lg tabular-nums"
+                    />
+                    <span className="w-6 text-sm text-muted-foreground">g</span>
+                  </div>
                 </div>
               ))}
             </div>
@@ -410,7 +426,7 @@ export function EnviarTab() {
                     <li key={i} className="flex justify-between">
                       <span>{l.nombre}</span>
                       <span className="tabular-nums">
-                        {fmt(l.kg_enviados)} kg{l.kg_recibidos != null ? ` · recibidos ${fmt(l.kg_recibidos)} kg` : ""}
+                        {fmtG(l.kg_enviados)} g{l.kg_recibidos != null ? ` · recibidos ${fmtG(l.kg_recibidos)} g` : ""}
                       </span>
                     </li>
                   ))}
