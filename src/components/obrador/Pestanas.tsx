@@ -649,7 +649,8 @@ export function DesviacionTab() {
         {filas.length === 0 ? (
           <p className="py-8 text-center text-sm text-muted-foreground">Hacen falta al menos dos recuentos para calcular la desviación</p>
         ) : (
-          <table className="w-full text-left text-sm">
+          <div className="max-w-full overflow-x-auto">
+          <table className="min-w-[480px] w-full text-left text-sm">
             <thead className="text-xs font-medium text-muted-foreground">
               <tr>
                 <th className="pb-2">Ingrediente</th>
@@ -677,6 +678,7 @@ export function DesviacionTab() {
               })}
             </tbody>
           </table>
+          </div>
         )}
       </Estado>
     </Panel>

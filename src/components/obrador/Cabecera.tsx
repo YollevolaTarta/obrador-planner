@@ -26,13 +26,13 @@ export function Cabecera({ email }: { email: string }) {
               : "Aún no hay ningún cierre"}
         </p>
         <div className="flex items-center gap-3">
-          <span className="text-sm text-muted-foreground">{email}</span>
+          <span className="break-all text-sm text-muted-foreground">{email}</span>
           <Button variant="outline" className="h-11 rounded-lg px-5 shadow-none" onClick={() => sb().auth.signOut()}>
             Salir
           </Button>
         </div>
       </div>
-      <div className="mt-2 space-y-1 text-sm sm:text-sm">
+      <div className="mt-2 space-y-1 text-sm">
         {(resumen.data ?? []).map((r: Row, i: number) => (
           <p key={i}>
             <span className="font-semibold text-foreground">{r.tienda}</span> · Tienda {r.tartas_tienda} · Web{" "}
