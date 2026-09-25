@@ -74,7 +74,7 @@ export function RecuentoTab() {
             {[...(mp.data ?? [])]
               .sort((a, b) => String(a.nombre).localeCompare(String(b.nombre), "es"))
               .map((r) => (
-                <div key={r.materia_prima_id} className="flex items-center justify-between gap-2 border-t border-border py-2">
+                <div key={r.materia_prima_id} className="flex min-w-0 flex-wrap items-center justify-between gap-2 border-t border-border py-2">
                   <div>
                     <p className="text-sm font-medium">{r.nombre}</p>
                     <p className="text-xs text-muted-foreground">
@@ -94,7 +94,7 @@ export function RecuentoTab() {
             {[...(pt.data ?? [])]
               .sort((a, b) => String(a.nombre).localeCompare(String(b.nombre), "es"))
               .map((r) => (
-                <div key={r.elaboracion_id} className="flex items-center justify-between gap-2 border-t border-border py-2">
+                <div key={r.elaboracion_id} className="flex min-w-0 flex-wrap items-center justify-between gap-2 border-t border-border py-2">
                   <div>
                     <p className="text-sm font-medium">{r.nombre}</p>
                     <p className="text-xs text-muted-foreground">
@@ -370,7 +370,7 @@ export function EnviarTab() {
           <Estado q={pt} vacio="No hay elaboraciones">
             <div className="lg:columns-2 gap-x-8">
               {[...(pt.data ?? [])].sort((a, b) => String(a.nombre).localeCompare(String(b.nombre), "es")).map((r) => (
-                <div key={r.elaboracion_id} className="break-inside-avoid flex items-center justify-between gap-2 border-t border-border py-2">
+                <div key={r.elaboracion_id} className="break-inside-avoid flex min-w-0 flex-wrap items-center justify-between gap-2 border-t border-border py-2">
                   <div>
                     <p className="text-sm font-medium">{r.nombre}</p>
                     <p className="text-sm text-muted-foreground">En obrador: {fmtG(r.kg)} g</p>
@@ -402,7 +402,7 @@ export function EnviarTab() {
         <Estado q={envios} vacio="Aún no hay envíos">
           <div className="space-y-3">
             {(envios.data ?? []).map((t) => (
-              <div key={t.id} className="rounded-lg border border-border bg-card p-3">
+              <div key={t.id} className="min-w-0 rounded-lg border border-border bg-card p-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="text-sm font-semibold">
                     {nombreTienda[String(t.store_id)] ?? t.store_id} · {fmtFecha(t.created_at)} · {t.enviado_email ?? "—"}
@@ -415,7 +415,7 @@ export function EnviarTab() {
                 {t.nota ? <p className="text-sm italic text-muted-foreground">{t.nota}</p> : null}
                 <ul className="mt-1 text-sm">
                   {(t.lineas as Row[]).map((l, i) => (
-                    <li key={i} className="flex justify-between">
+                    <li key={i} className="flex flex-wrap justify-between gap-2">
                       <span>{l.nombre}</span>
                       <span className="tabular-nums">
                         {fmtG(l.kg_enviados)} g{l.kg_recibidos != null ? ` · recibidos ${fmtG(l.kg_recibidos)} g` : ""}
@@ -474,7 +474,7 @@ export function StockTab() {
         <Panel titulo="Obrador · materia prima">
           <Estado q={mp} vacio="Sin datos">
             {(mp.data ?? []).map((r) => (
-              <div key={r.materia_prima_id} className="flex items-center justify-between gap-2 border-t border-border py-2">
+              <div key={r.materia_prima_id} className="flex min-w-0 flex-wrap items-center justify-between gap-2 border-t border-border py-2">
                 <div>
                   <p className="text-sm font-medium">{r.nombre}</p>
                   <p className="text-xs text-muted-foreground">
@@ -483,7 +483,7 @@ export function StockTab() {
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="num-xl text-base text-right">{fmt(r.cantidad)} {r.unidad}</span>
-                  <Button variant="secondary" className="h-11 rounded-lg" onClick={() => { setError(null); setValor(""); setDialogo(r); }}>
+                  <Button variant="outline" className="h-11 rounded-lg shadow-none" onClick={() => { setError(null); setValor(""); setDialogo(r); }}>
                     + Entrada
                   </Button>
                 </div>
@@ -494,7 +494,7 @@ export function StockTab() {
         <Panel titulo="Obrador · producto terminado">
           <Estado q={pt} vacio="Sin datos">
             {(pt.data ?? []).map((r) => (
-              <div key={r.elaboracion_id} className="flex items-center justify-between border-t border-border py-2">
+              <div key={r.elaboracion_id} className="flex min-w-0 flex-wrap items-center justify-between gap-2 border-t border-border py-2">
                 <div>
                   <p className="text-sm font-medium">{r.nombre}</p>
                   <p className="text-xs text-muted-foreground">
@@ -511,12 +511,12 @@ export function StockTab() {
         <Estado q={st} vacio="Sin datos de tiendas">
           <div className="grid gap-4 lg:grid-cols-2">
             {agrupar(st.data ?? [], (r) => r.tienda).map(([tienda, rows]) => (
-              <div key={tienda} className="rounded-lg border border-border bg-card p-3">
+              <div key={tienda} className="min-w-0 rounded-lg border border-border bg-card p-3">
                 <p className="mb-2 text-lg font-semibold text-foreground">{tienda}</p>
                 {rows.map((r) => {
                   const est = Number(r.kg_recibidos) + Number(r.kg_en_camino) - Number(r.kg_gastados);
                   return (
-                    <div key={r.elaboracion_id} className="flex justify-between border-t border-border py-1.5">
+                    <div key={r.elaboracion_id} className="flex flex-wrap justify-between gap-2 border-t border-border py-1.5">
                       <span>{r.nombre}</span>
                       <span className={`font-bold tabular-nums ${est <= 0 ? "text-alert" : ""}`}>{fmt(est)} kg</span>
                     </div>
@@ -542,7 +542,7 @@ export function StockTab() {
                     ) : null}
                   </p>
                   {anulada ? null : (
-                    <Button variant="secondary" className="h-11 rounded-lg" onClick={() => { setAnularError(null); setAnular(r); }}>Anular</Button>
+                    <Button variant="outline" className="h-11 rounded-lg shadow-none" onClick={() => { setAnularError(null); setAnular(r); }}>Anular</Button>
                   )}
                 </div>
               );
@@ -559,7 +559,7 @@ export function StockTab() {
           <p className="text-lg">
             ¿Anular la entrada de {fmt(anular?.cantidad)} {anular?.unidad} de {anular?.nombre}? Dejará de contar en el stock.
           </p>
-          {anularError ? <p className="font-semibold text-alert">{anularError}</p> : null}
+          {anularError ? <p className="rounded-xl border border-border bg-card px-4 py-3 text-sm font-medium text-alert">{anularError}</p> : null}
           <DialogFooter>
             <Button className="min-h-11 w-full rounded-lg text-sm" disabled={anulando} onClick={anularEntrada}>
               {anulando ? "Anulando…" : "Anular entrada"}
@@ -583,7 +583,7 @@ export function StockTab() {
             placeholder="0,00"
             className="h-12 w-full rounded-lg border border-input bg-card px-3 text-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           />
-          {error ? <p className="font-semibold text-alert">{error}</p> : null}
+          {error ? <p className="rounded-xl border border-border bg-card px-4 py-3 text-sm font-medium text-alert">{error}</p> : null}
           <DialogFooter>
             <Button className="min-h-11 w-full rounded-lg text-sm" onClick={guardarEntrada}>Guardar</Button>
           </DialogFooter>
@@ -616,11 +616,11 @@ export function ComprasTab() {
         {cubiertas.length ? (
           <Collapsible className="mt-5">
             <CollapsibleTrigger asChild>
-              <Button variant="secondary" className="h-11 rounded-lg">Cubiertas ({cubiertas.length}) ▾</Button>
+              <Button variant="outline" className="h-11 rounded-lg shadow-none">Cubiertas ({cubiertas.length}) ▾</Button>
             </CollapsibleTrigger>
             <CollapsibleContent className="mt-3">
               {cubiertas.map((r) => (
-                <div key={r.materia_prima_id} className="flex justify-between border-t border-border py-1.5">
+                <div key={r.materia_prima_id} className="flex flex-wrap justify-between gap-2 border-t border-border py-1.5">
                   <span>{r.nombre}</span>
                   <span className="tabular-nums text-muted-foreground">
                     Necesario {fmt(r.necesario)} · Stock {fmt(r.stock)} {r.unidad} · <span className="text-success">OK</span>

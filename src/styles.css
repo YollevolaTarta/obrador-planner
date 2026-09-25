@@ -7,12 +7,7 @@
   --font-display: "Inter", ui-sans-serif, system-ui, sans-serif;
 }
 
-@custom-variant dark (&:is(.dark *));
-
-/*
- * Design system definition.
- *
- * The @theme inline block maps CSS custom properties to Tailwind utility
+@theme inline block maps CSS custom properties to Tailwind utility
  * classes (e.g. --color-primary -> bg-primary, text-primary).
  *
  * The :root and .dark blocks define the actual color values using oklch.
