@@ -437,10 +437,26 @@ export function StockTab() {
   const mp = useStockMp();
   const pt = useStockPt();
   const st = useDatos("v_stock_tiendas", () => sb().from("v_stock_tiendas").select("*").order("nombre"));
+  const entradas = useDatos("v_obrador_entradas", () =>
+    sb().from("v_obrador_entradas").select("*").order("created_at", { ascending: false }).limit(30)
+  );
   const refrescar = useRefrescar();
   const [dialogo, setDialogo] = useState<Row | null>(null);
   const [valor, setValor] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [anular, setAnular] = useState<Row | null>(null);
+  const [anularError, setAnularError] = useState<string | null>(null);
+  const [anulando, setAnulando] = useState(false);
+
+  async function anularEntrada() {
+    setAnularError(null);
+    setAnulando(true);
+    const { error } = await sb().rpc("obrador_anular_entrada", { p_id: anular!.id });
+    setAnulando(false);
+    if (error) return setAnularError(error.message);
+    setAnular(null);
+    refrescar();
+  }
 
   async function guardarEntrada() {
     const n = parseNum(valor);
