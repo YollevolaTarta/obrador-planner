@@ -14,10 +14,7 @@ export function Cabecera({ email }: { email: string }) {
   return (
     <header className="sticky top-0 z-10 border-b border-border bg-card/90 px-4 py-3 backdrop-blur sm:px-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <span className="text-sm font-semibold text-foreground before:mr-2 before:inline-block before:h-2.5 before:w-2.5 before:rounded-full before:bg-brand before:content-['']">Yo Llevo la Tarta</span>
-          <h1 className="text-sm font-normal text-muted-foreground">Dashboard obrador</h1>
-        </div>
+        <span className="text-sm font-semibold text-foreground before:mr-2 before:inline-block before:h-2.5 before:w-2.5 before:rounded-full before:bg-brand before:content-['']">Yo Llevo la Tarta<span className="font-normal text-muted-foreground"> · Obrador</span></span>
         <p className="text-sm">
           {tanda.isLoading
             ? "Cargando…"
