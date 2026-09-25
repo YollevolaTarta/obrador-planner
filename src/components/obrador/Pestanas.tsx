@@ -24,7 +24,7 @@ const fmtG = (kg: number | null | undefined) => Math.round(Number(kg ?? 0) * 100
 
 function Mensaje({ m }: { m: { ok: boolean; texto: string } | null }) {
   if (!m) return null;
-  return <p className={`text-lg font-semibold ${m.ok ? "text-ok" : "text-brand-red"}`}>{m.texto}</p>;
+  return <p className={`text-sm font-medium ${m.ok ? "text-success" : "text-alert"}`}>{m.texto}</p>;
 }
 
 /* ---------------- 1. Recuento ---------------- */
@@ -74,9 +74,9 @@ export function RecuentoTab() {
             {[...(mp.data ?? [])]
               .sort((a, b) => String(a.nombre).localeCompare(String(b.nombre), "es"))
               .map((r) => (
-                <div key={r.materia_prima_id} className="flex items-center justify-between gap-2 border-t border-border py-2">
+                <div key={r.materia_prima_id} className="flex min-w-0 flex-wrap items-center justify-between gap-2 border-t border-border py-2">
                   <div>
-                    <p className="text-base font-medium">{r.nombre}</p>
+                    <p className="text-sm font-medium">{r.nombre}</p>
                     <p className="text-xs text-muted-foreground">
                       Actualizado {fmtFecha(r.ultimo_recuento_at)} por {r.ultimo_recuento_por ?? "—"}
                     </p>
@@ -94,9 +94,9 @@ export function RecuentoTab() {
             {[...(pt.data ?? [])]
               .sort((a, b) => String(a.nombre).localeCompare(String(b.nombre), "es"))
               .map((r) => (
-                <div key={r.elaboracion_id} className="flex items-center justify-between gap-2 border-t border-border py-2">
+                <div key={r.elaboracion_id} className="flex min-w-0 flex-wrap items-center justify-between gap-2 border-t border-border py-2">
                   <div>
-                    <p className="text-base font-medium">{r.nombre}</p>
+                    <p className="text-sm font-medium">{r.nombre}</p>
                     <p className="text-xs text-muted-foreground">
                       Actualizado {fmtFecha(r.ultimo_recuento_at)} por {r.ultimo_recuento_por ?? "—"}
                     </p>
@@ -111,7 +111,7 @@ export function RecuentoTab() {
         </Panel>
       </div>
       <div className="flex flex-wrap items-center gap-4">
-        <Button className="h-14 px-10 text-xl" disabled={guardando || !mp.data || !pt.data} onClick={guardar}>
+        <Button className="min-h-11 rounded-lg px-8 text-sm" disabled={guardando || !mp.data || !pt.data} onClick={guardar}>
           {guardando ? "Guardando…" : "Guardar recuento"}
         </Button>
         <Mensaje m={msg} />
@@ -165,8 +165,8 @@ export function ProduccionTab() {
     <Panel titulo="Producción" nota="Pulsa una fila para ver el detalle por tienda">
       <Estado q={sug} vacio="No hay sugerencias de producción">
         <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead className="text-xs uppercase tracking-wide text-muted-foreground">
+          <table className="w-full text-left text-sm">
+            <thead className="text-xs font-medium text-muted-foreground">
               <tr>
                 <th className="pb-2">Elaboración</th>
                 <th className="pb-2 text-right">Vendido desde último cierre (kg)</th>
@@ -181,7 +181,7 @@ export function ProduccionTab() {
               {agrupar(sug.data ?? [], (r) => r.tipo).map(([tipo, rows]) => (
                 <Fragment key={tipo}>
                   <tr>
-                    <td colSpan={7} className="pt-4 pb-1 text-sm font-semibold uppercase tracking-wide text-primary">
+                    <td colSpan={7} className="pt-4 pb-1 text-sm font-semibold uppercase tracking-wide text-foreground">
                       {TIPO_LABEL[tipo] ?? tipo}
                     </td>
                   </tr>
@@ -192,16 +192,16 @@ export function ProduccionTab() {
                       <Fragment key={r.elaboracion_id}>
                         <tr
                           onClick={() => setAbierta(abierta === r.elaboracion_id ? null : r.elaboracion_id)}
-                          className={`cursor-pointer border-t border-border ${destacar ? "bg-primary/15" : ""}`}
+                          className={`cursor-pointer border-t border-border ${destacar ? "bg-brand-soft" : ""}`}
                         >
-                          <td className="py-2 pl-2 text-base font-medium">
+                          <td className="py-2 pl-2 text-sm font-medium">
                             {abierta === r.elaboracion_id ? "▾ " : "▸ "}
                             {r.nombre}
                           </td>
                           <td className="py-2 text-right tabular-nums">{fmt(r.kg_vendidos)}</td>
                           <td className="py-2 text-right tabular-nums">{fmt(r.kg_stock_obrador)}</td>
                           <td className="py-2 text-right tabular-nums">{fmt(r.kg_stock_tiendas)}</td>
-                          <td className={`py-2 text-right text-lg font-bold tabular-nums ${destacar ? "text-primary" : ""}`}>
+                          <td className={`py-2 text-right num-xl text-base ${destacar ? "text-foreground" : ""}`}>
                             {fmt(r.kg_sugeridos)}
                           </td>
                           <td className="py-2 pl-3">
@@ -254,7 +254,7 @@ export function ProduccionTab() {
           </table>
         </div>
         <div className="mt-5 flex flex-wrap items-center gap-4">
-          <Button className="h-14 px-10 text-xl" onClick={() => { setMsg(null); setConfirmar(true); }}>
+          <Button className="min-h-11 rounded-lg px-8 text-sm" onClick={() => { setMsg(null); setConfirmar(true); }}>
             Cerrar tanda
           </Button>
           <Mensaje m={msg} />
@@ -280,7 +280,7 @@ export function ProduccionTab() {
           )}
           <Textarea placeholder="Notas (opcional)" value={notas} onChange={(e) => setNotas(e.target.value)} />
           <DialogFooter>
-            <Button className="h-12 w-full text-lg" disabled={guardando} onClick={cerrar}>
+            <Button className="min-h-11 w-full rounded-lg text-sm" disabled={guardando} onClick={cerrar}>
               {guardando ? "Cerrando…" : "Confirmar cierre"}
             </Button>
           </DialogFooter>
@@ -349,14 +349,14 @@ export function EnviarTab() {
   }
 
   const badge = (e: string) =>
-    e === "recibido" ? "bg-ok text-background" : e === "incidencia" ? "bg-brand-red text-foreground" : "bg-warn text-background";
+    e === "recibido" ? "bg-success text-primary-foreground" : e === "incidencia" ? "bg-alert text-destructive-foreground" : "bg-warning text-primary-foreground";
 
   return (
     <div className="space-y-5">
       <Panel titulo="Enviar a tienda">
         <Estado q={tiendas} vacio="No hay tiendas">
           <Select value={tienda} onValueChange={setTienda}>
-            <SelectTrigger className="h-12 w-72 text-lg">
+            <SelectTrigger className="h-11 w-72 max-w-full rounded-lg text-sm">
               <SelectValue placeholder="Elige tienda" />
             </SelectTrigger>
             <SelectContent>
@@ -370,9 +370,9 @@ export function EnviarTab() {
           <Estado q={pt} vacio="No hay elaboraciones">
             <div className="lg:columns-2 gap-x-8">
               {[...(pt.data ?? [])].sort((a, b) => String(a.nombre).localeCompare(String(b.nombre), "es")).map((r) => (
-                <div key={r.elaboracion_id} className="break-inside-avoid flex items-center justify-between gap-2 border-t border-border py-2">
+                <div key={r.elaboracion_id} className="break-inside-avoid flex min-w-0 flex-wrap items-center justify-between gap-2 border-t border-border py-2">
                   <div>
-                    <p className="text-base font-medium">{r.nombre}</p>
+                    <p className="text-sm font-medium">{r.nombre}</p>
                     <p className="text-sm text-muted-foreground">En obrador: {fmtG(r.kg)} g</p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -381,7 +381,7 @@ export function EnviarTab() {
                       value={gr[r.elaboracion_id] ?? ""}
                       placeholder="0"
                       onChange={(e) => setGr({ ...gr, [r.elaboracion_id]: e.target.value.replace(/[^\d.,]/g, "") })}
-                      className="h-12 w-32 text-right text-lg tabular-nums"
+                      className="h-11 w-28 rounded-lg text-right text-sm tabular-nums"
                     />
                     <span className="w-6 text-sm text-muted-foreground">g</span>
                   </div>
@@ -391,7 +391,7 @@ export function EnviarTab() {
           </Estado>
         </div>
         <div className="mt-5 flex flex-wrap items-center gap-4">
-          <Button className="h-14 px-10 text-xl" disabled={guardando} onClick={enviar}>
+          <Button className="min-h-11 rounded-lg px-8 text-sm" disabled={guardando} onClick={enviar}>
             {guardando ? "Registrando…" : "Registrar envío"}
           </Button>
           <Mensaje m={msg} />
@@ -402,9 +402,9 @@ export function EnviarTab() {
         <Estado q={envios} vacio="Aún no hay envíos">
           <div className="space-y-3">
             {(envios.data ?? []).map((t) => (
-              <div key={t.id} className="rounded-lg bg-secondary/60 p-3">
+              <div key={t.id} className="min-w-0 rounded-lg border border-border bg-card p-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="text-base font-semibold">
+                  <span className="text-sm font-semibold">
                     {nombreTienda[String(t.store_id)] ?? t.store_id} · {fmtFecha(t.created_at)} · {t.enviado_email ?? "—"}
                   </span>
                   <Badge className={badge(t.estado)}>{t.estado}</Badge>
@@ -415,7 +415,7 @@ export function EnviarTab() {
                 {t.nota ? <p className="text-sm italic text-muted-foreground">{t.nota}</p> : null}
                 <ul className="mt-1 text-sm">
                   {(t.lineas as Row[]).map((l, i) => (
-                    <li key={i} className="flex justify-between">
+                    <li key={i} className="flex flex-wrap justify-between gap-2">
                       <span>{l.nombre}</span>
                       <span className="tabular-nums">
                         {fmtG(l.kg_enviados)} g{l.kg_recibidos != null ? ` · recibidos ${fmtG(l.kg_recibidos)} g` : ""}
@@ -474,16 +474,16 @@ export function StockTab() {
         <Panel titulo="Obrador · materia prima">
           <Estado q={mp} vacio="Sin datos">
             {(mp.data ?? []).map((r) => (
-              <div key={r.materia_prima_id} className="flex items-center justify-between gap-2 border-t border-border py-2">
+              <div key={r.materia_prima_id} className="flex min-w-0 flex-wrap items-center justify-between gap-2 border-t border-border py-2">
                 <div>
-                  <p className="text-base font-medium">{r.nombre}</p>
+                  <p className="text-sm font-medium">{r.nombre}</p>
                   <p className="text-xs text-muted-foreground">
                     Actualizado {fmtFecha(r.ultimo_recuento_at)} por {r.ultimo_recuento_por ?? "—"}
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-lg font-bold tabular-nums">{fmt(r.cantidad)} {r.unidad}</span>
-                  <Button variant="secondary" className="h-11" onClick={() => { setError(null); setValor(""); setDialogo(r); }}>
+                  <span className="num-xl text-base text-right">{fmt(r.cantidad)} {r.unidad}</span>
+                  <Button variant="outline" className="h-11 rounded-lg shadow-none" onClick={() => { setError(null); setValor(""); setDialogo(r); }}>
                     + Entrada
                   </Button>
                 </div>
@@ -494,14 +494,14 @@ export function StockTab() {
         <Panel titulo="Obrador · producto terminado">
           <Estado q={pt} vacio="Sin datos">
             {(pt.data ?? []).map((r) => (
-              <div key={r.elaboracion_id} className="flex items-center justify-between border-t border-border py-2">
+              <div key={r.elaboracion_id} className="flex min-w-0 flex-wrap items-center justify-between gap-2 border-t border-border py-2">
                 <div>
-                  <p className="text-base font-medium">{r.nombre}</p>
+                  <p className="text-sm font-medium">{r.nombre}</p>
                   <p className="text-xs text-muted-foreground">
                     Actualizado {fmtFecha(r.ultimo_recuento_at)} por {r.ultimo_recuento_por ?? "—"}
                   </p>
                 </div>
-                <span className="text-lg font-bold tabular-nums">{fmt(r.kg)} kg</span>
+                <span className="num-xl text-base text-right">{fmt(r.kg)} kg</span>
               </div>
             ))}
           </Estado>
@@ -511,14 +511,14 @@ export function StockTab() {
         <Estado q={st} vacio="Sin datos de tiendas">
           <div className="grid gap-4 lg:grid-cols-2">
             {agrupar(st.data ?? [], (r) => r.tienda).map(([tienda, rows]) => (
-              <div key={tienda} className="rounded-lg bg-secondary/60 p-3">
-                <p className="mb-2 text-lg font-semibold text-primary">{tienda}</p>
+              <div key={tienda} className="min-w-0 rounded-lg border border-border bg-card p-3">
+                <p className="mb-2 text-lg font-semibold text-foreground">{tienda}</p>
                 {rows.map((r) => {
                   const est = Number(r.kg_recibidos) + Number(r.kg_en_camino) - Number(r.kg_gastados);
                   return (
-                    <div key={r.elaboracion_id} className="flex justify-between border-t border-border py-1.5">
+                    <div key={r.elaboracion_id} className="flex flex-wrap justify-between gap-2 border-t border-border py-1.5">
                       <span>{r.nombre}</span>
-                      <span className={`font-bold tabular-nums ${est <= 0 ? "text-brand-red" : ""}`}>{fmt(est)} kg</span>
+                      <span className={`font-bold tabular-nums ${est <= 0 ? "text-alert" : ""}`}>{fmt(est)} kg</span>
                     </div>
                   );
                 })}
@@ -542,7 +542,7 @@ export function StockTab() {
                     ) : null}
                   </p>
                   {anulada ? null : (
-                    <Button variant="secondary" className="h-11" onClick={() => { setAnularError(null); setAnular(r); }}>Anular</Button>
+                    <Button variant="outline" className="h-11 rounded-lg shadow-none" onClick={() => { setAnularError(null); setAnular(r); }}>Anular</Button>
                   )}
                 </div>
               );
@@ -559,9 +559,9 @@ export function StockTab() {
           <p className="text-lg">
             ¿Anular la entrada de {fmt(anular?.cantidad)} {anular?.unidad} de {anular?.nombre}? Dejará de contar en el stock.
           </p>
-          {anularError ? <p className="font-semibold text-brand-red">{anularError}</p> : null}
+          {anularError ? <p className="rounded-xl border border-border bg-card px-4 py-3 text-sm font-medium text-alert">{anularError}</p> : null}
           <DialogFooter>
-            <Button className="h-12 w-full text-lg" disabled={anulando} onClick={anularEntrada}>
+            <Button className="min-h-11 w-full rounded-lg text-sm" disabled={anulando} onClick={anularEntrada}>
               {anulando ? "Anulando…" : "Anular entrada"}
             </Button>
           </DialogFooter>
@@ -581,11 +581,11 @@ export function StockTab() {
             value={valor}
             onChange={(e) => setValor(e.target.value)}
             placeholder="0,00"
-            className="h-14 rounded-md border border-input bg-transparent px-3 text-2xl"
+            className="h-12 w-full rounded-lg border border-input bg-card px-3 text-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           />
-          {error ? <p className="font-semibold text-brand-red">{error}</p> : null}
+          {error ? <p className="rounded-xl border border-border bg-card px-4 py-3 text-sm font-medium text-alert">{error}</p> : null}
           <DialogFooter>
-            <Button className="h-12 w-full text-lg" onClick={guardarEntrada}>Guardar</Button>
+            <Button className="min-h-11 w-full rounded-lg text-sm" onClick={guardarEntrada}>Guardar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -601,12 +601,12 @@ export function ComprasTab() {
   return (
     <Panel titulo="Compras" nota="Informativo: decide el encargado">
       <Estado q={q} vacio="Sin datos de compras">
-        {faltan.length === 0 ? <p className="text-lg text-ok">Todo cubierto</p> : null}
+        {faltan.length === 0 ? <p className="text-sm text-success">Todo cubierto</p> : null}
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {faltan.map((r) => (
-            <div key={r.materia_prima_id} className="rounded-lg border border-brand-red/60 bg-brand-red/10 p-3">
-              <p className="text-base font-semibold">{r.nombre}</p>
-              <p className="text-xl font-bold text-brand-red">Faltan {fmt(r.faltan)} {r.unidad}</p>
+            <div key={r.materia_prima_id} className="rounded-lg border border-alert/40 bg-card p-3">
+              <p className="text-sm font-semibold">{r.nombre}</p>
+              <p className="num-xl text-base text-alert">Faltan {fmt(r.faltan)} {r.unidad}</p>
               <p className="text-sm text-muted-foreground">
                 Necesario {fmt(r.necesario)} · Stock {fmt(r.stock)} {r.unidad}
               </p>
@@ -616,14 +616,14 @@ export function ComprasTab() {
         {cubiertas.length ? (
           <Collapsible className="mt-5">
             <CollapsibleTrigger asChild>
-              <Button variant="secondary" className="h-11">Cubiertas ({cubiertas.length}) ▾</Button>
+              <Button variant="outline" className="h-11 rounded-lg shadow-none">Cubiertas ({cubiertas.length}) ▾</Button>
             </CollapsibleTrigger>
             <CollapsibleContent className="mt-3">
               {cubiertas.map((r) => (
-                <div key={r.materia_prima_id} className="flex justify-between border-t border-border py-1.5">
+                <div key={r.materia_prima_id} className="flex flex-wrap justify-between gap-2 border-t border-border py-1.5">
                   <span>{r.nombre}</span>
                   <span className="tabular-nums text-muted-foreground">
-                    Necesario {fmt(r.necesario)} · Stock {fmt(r.stock)} {r.unidad} · <span className="text-ok">OK</span>
+                    Necesario {fmt(r.necesario)} · Stock {fmt(r.stock)} {r.unidad} · <span className="text-success">OK</span>
                   </span>
                 </div>
               ))}
@@ -647,10 +647,11 @@ export function DesviacionTab() {
     >
       <Estado q={q}>
         {filas.length === 0 ? (
-          <p className="py-6 text-lg text-muted-foreground">Hacen falta al menos dos recuentos para calcular la desviación</p>
+          <p className="py-8 text-center text-sm text-muted-foreground">Hacen falta al menos dos recuentos para calcular la desviación</p>
         ) : (
-          <table className="w-full text-left">
-            <thead className="text-sm uppercase tracking-wide text-muted-foreground">
+          <div className="max-w-full overflow-x-auto">
+          <table className="min-w-[480px] w-full text-left text-sm">
+            <thead className="text-xs font-medium text-muted-foreground">
               <tr>
                 <th className="pb-2">Ingrediente</th>
                 <th className="pb-2 text-right">Teórico</th>
@@ -663,13 +664,13 @@ export function DesviacionTab() {
                 const t = Number(r.teorico);
                 const desv = t === 0 ? null : ((Number(r.real) - t) / t) * 100;
                 const abs = desv === null ? Infinity : Math.abs(desv);
-                const color = abs < 5 ? "text-ok" : abs <= 15 ? "text-warn" : "text-brand-red";
+                const color = abs < 5 ? "text-success" : abs <= 15 ? "text-warning" : "text-alert";
                 return (
                   <tr key={r.materia_prima_id} className="border-t border-border">
                     <td className="py-2 text-base">{r.nombre}</td>
                     <td className="py-2 text-right tabular-nums">{fmt(r.teorico)} {r.unidad}</td>
                     <td className="py-2 text-right tabular-nums">{fmt(r.real)} {r.unidad}</td>
-                    <td className={`py-2 text-right text-lg font-bold tabular-nums ${color}`}>
+                    <td className={`py-2 text-right num-xl text-base ${color}`}>
                       {desv === null ? "sin teórico" : `${desv > 0 ? "+" : ""}${fmt(desv, 1)} %`}
                     </td>
                   </tr>
@@ -677,6 +678,7 @@ export function DesviacionTab() {
               })}
             </tbody>
           </table>
+          </div>
         )}
       </Estado>
     </Panel>

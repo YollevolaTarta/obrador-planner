@@ -85,7 +85,7 @@ function Dashboard({ email }: { email: string }) {
         <p className="max-w-md text-xl font-semibold">
           Tu usuario no tiene permiso para el obrador. Habla con administración.
         </p>
-        <Button variant="secondary" className="h-12 px-6" onClick={() => sb().auth.signOut()}>
+        <Button variant="outline" className="h-11 rounded-lg px-6 shadow-none" onClick={() => sb().auth.signOut()}>
           Salir
         </Button>
       </div>
@@ -94,11 +94,11 @@ function Dashboard({ email }: { email: string }) {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Cabecera email={email} />
-      <main className="mx-auto max-w-[1600px] px-3 py-5 sm:px-6">
+      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
         <Tabs defaultValue="recuento" onValueChange={() => qc.invalidateQueries()}>
-          <TabsList className="mb-5 flex h-auto w-full flex-wrap gap-1">
+          <TabsList className="mb-5 flex h-auto w-full flex-wrap gap-1 rounded-xl bg-muted p-1">
             {PESTANAS.map(([v, l]) => (
-              <TabsTrigger key={v} value={v} className="h-12 flex-1 text-base sm:text-lg">
+              <TabsTrigger key={v} value={v} className="min-h-11 flex-1 rounded-lg border border-transparent text-sm font-medium text-muted-foreground shadow-none data-[state=active]:border-border data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-none">
                 {l}
               </TabsTrigger>
             ))}
