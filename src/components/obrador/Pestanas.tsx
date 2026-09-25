@@ -68,56 +68,48 @@ export function RecuentoTab() {
 
   return (
     <div className="space-y-5">
-      <Panel titulo="Materias primas" nota="Corrige el valor estimado con lo que cuentes">
-        <Estado q={mp} vacio="No hay materias primas">
-          <div className="grid gap-4 lg:grid-cols-2">
-            {agrupar(mp.data ?? [], (r) => r.categoria).map(([cat, rows]) => (
-              <div key={cat} className="rounded-lg bg-secondary/60 p-3">
-                <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-primary">{cat}</p>
-                {rows.map((r) => (
-                  <div key={r.materia_prima_id} className="flex items-center justify-between gap-2 border-t border-border py-2">
-                    <div>
-                      <p className="text-base font-medium">{r.nombre}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {fmtFecha(r.ultimo_recuento_at)} · {r.ultimo_recuento_por ?? "—"}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <NumInput value={vMp[r.materia_prima_id] ?? ""} onChange={(v) => setVMp({ ...vMp, [r.materia_prima_id]: v })} />
-                      <span className="w-8 text-sm text-muted-foreground">{r.unidad}</span>
-                    </div>
+      <div className="grid gap-5 xl:grid-cols-2">
+        <Panel titulo="Materias primas" nota="Corrige el valor estimado con lo que cuentes">
+          <Estado q={mp} vacio="No hay materias primas">
+            {[...(mp.data ?? [])]
+              .sort((a, b) => String(a.nombre).localeCompare(String(b.nombre), "es"))
+              .map((r) => (
+                <div key={r.materia_prima_id} className="flex items-center justify-between gap-2 border-t border-border py-2">
+                  <div>
+                    <p className="text-base font-medium">{r.nombre}</p>
+                    <p className="text-xs text-muted-foreground">
+                      Actualizado {fmtFecha(r.ultimo_recuento_at)} por {r.ultimo_recuento_por ?? "—"}
+                    </p>
                   </div>
-                ))}
-              </div>
-            ))}
-          </div>
-        </Estado>
-      </Panel>
-      <Panel titulo="Producto terminado" nota="Kg en el obrador">
-        <Estado q={pt} vacio="No hay producto terminado">
-          <div className="grid gap-4 lg:grid-cols-2">
-            {agrupar(pt.data ?? [], (r) => r.tipo).map(([tipo, rows]) => (
-              <div key={tipo} className="rounded-lg bg-secondary/60 p-3">
-                <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-primary">{TIPO_LABEL[tipo] ?? tipo}</p>
-                {rows.map((r) => (
-                  <div key={r.elaboracion_id} className="flex items-center justify-between gap-2 border-t border-border py-2">
-                    <div>
-                      <p className="text-base font-medium">{r.nombre}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {fmtFecha(r.ultimo_recuento_at)} · {r.ultimo_recuento_por ?? "—"}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <NumInput value={vPt[r.elaboracion_id] ?? ""} onChange={(v) => setVPt({ ...vPt, [r.elaboracion_id]: v })} />
-                      <span className="w-8 text-sm text-muted-foreground">kg</span>
-                    </div>
+                  <div className="flex items-center gap-2">
+                    <NumInput value={vMp[r.materia_prima_id] ?? ""} onChange={(v) => setVMp({ ...vMp, [r.materia_prima_id]: v })} />
+                    <span className="w-8 text-sm text-muted-foreground">{r.unidad}</span>
                   </div>
-                ))}
-              </div>
-            ))}
-          </div>
-        </Estado>
-      </Panel>
+                </div>
+              ))}
+          </Estado>
+        </Panel>
+        <Panel titulo="Producto terminado" nota="Kg en el obrador">
+          <Estado q={pt} vacio="No hay producto terminado">
+            {[...(pt.data ?? [])]
+              .sort((a, b) => String(a.nombre).localeCompare(String(b.nombre), "es"))
+              .map((r) => (
+                <div key={r.elaboracion_id} className="flex items-center justify-between gap-2 border-t border-border py-2">
+                  <div>
+                    <p className="text-base font-medium">{r.nombre}</p>
+                    <p className="text-xs text-muted-foreground">
+                      Actualizado {fmtFecha(r.ultimo_recuento_at)} por {r.ultimo_recuento_por ?? "—"}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <NumInput value={vPt[r.elaboracion_id] ?? ""} onChange={(v) => setVPt({ ...vPt, [r.elaboracion_id]: v })} />
+                    <span className="w-8 text-sm text-muted-foreground">kg</span>
+                  </div>
+                </div>
+              ))}
+          </Estado>
+        </Panel>
+      </div>
       <div className="flex flex-wrap items-center gap-4">
         <Button className="h-14 px-10 text-xl" disabled={guardando || !mp.data || !pt.data} onClick={guardar}>
           {guardando ? "Guardando…" : "Guardar recuento"}
@@ -445,10 +437,26 @@ export function StockTab() {
   const mp = useStockMp();
   const pt = useStockPt();
   const st = useDatos("v_stock_tiendas", () => sb().from("v_stock_tiendas").select("*").order("nombre"));
+  const entradas = useDatos("v_obrador_entradas", () =>
+    sb().from("v_obrador_entradas").select("*").order("created_at", { ascending: false }).limit(30)
+  );
   const refrescar = useRefrescar();
   const [dialogo, setDialogo] = useState<Row | null>(null);
   const [valor, setValor] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [anular, setAnular] = useState<Row | null>(null);
+  const [anularError, setAnularError] = useState<string | null>(null);
+  const [anulando, setAnulando] = useState(false);
+
+  async function anularEntrada() {
+    setAnularError(null);
+    setAnulando(true);
+    const { error } = await sb().rpc("obrador_anular_entrada", { p_id: anular!.id });
+    setAnulando(false);
+    if (error) return setAnularError(error.message);
+    setAnular(null);
+    refrescar();
+  }
 
   async function guardarEntrada() {
     const n = parseNum(valor);
@@ -519,6 +527,47 @@ export function StockTab() {
           </div>
         </Estado>
       </Panel>
+
+      <Panel titulo="Últimas entradas" nota="Si una entrada está mal, anúlala y registra la buena">
+        <Estado q={entradas} vacio="Aún no hay entradas">
+          <div className="space-y-1">
+            {(entradas.data ?? []).map((r) => {
+              const anulada = !!r.anulada_at;
+              return (
+                <div key={r.id} className={`flex items-center justify-between gap-2 border-t border-border py-2 ${anulada ? "opacity-50" : ""}`}>
+                  <p className={`text-base ${anulada ? "line-through text-muted-foreground" : ""}`}>
+                    +{fmt(r.cantidad)} {r.unidad} {r.nombre} · {fmtFecha(r.created_at)} · {r.usuario_email ?? "—"}
+                    {anulada ? (
+                      <span className="block text-xs text-muted-foreground">Anulada {fmtFecha(r.anulada_at)} por {r.anulada_email ?? "—"}</span>
+                    ) : null}
+                  </p>
+                  {anulada ? null : (
+                    <Button variant="secondary" className="h-11" onClick={() => { setAnularError(null); setAnular(r); }}>Anular</Button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </Estado>
+      </Panel>
+
+      <Dialog open={anular !== null} onOpenChange={(v) => !v && setAnular(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>¿Anular la entrada?</DialogTitle>
+          </DialogHeader>
+          <p className="text-lg">
+            ¿Anular la entrada de {fmt(anular?.cantidad)} {anular?.unidad} de {anular?.nombre}? Dejará de contar en el stock.
+          </p>
+          {anularError ? <p className="font-semibold text-brand-red">{anularError}</p> : null}
+          <DialogFooter>
+            <Button className="h-12 w-full text-lg" disabled={anulando} onClick={anularEntrada}>
+              {anulando ? "Anulando…" : "Anular entrada"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
 
       <Dialog open={dialogo !== null} onOpenChange={(v) => !v && setDialogo(null)}>
         <DialogContent>
