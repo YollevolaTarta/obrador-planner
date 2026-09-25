@@ -68,56 +68,48 @@ export function RecuentoTab() {
 
   return (
     <div className="space-y-5">
-      <Panel titulo="Materias primas" nota="Corrige el valor estimado con lo que cuentes">
-        <Estado q={mp} vacio="No hay materias primas">
-          <div className="grid gap-4 lg:grid-cols-2">
-            {agrupar(mp.data ?? [], (r) => r.categoria).map(([cat, rows]) => (
-              <div key={cat} className="rounded-lg bg-secondary/60 p-3">
-                <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-primary">{cat}</p>
-                {rows.map((r) => (
-                  <div key={r.materia_prima_id} className="flex items-center justify-between gap-2 border-t border-border py-2">
-                    <div>
-                      <p className="text-base font-medium">{r.nombre}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {fmtFecha(r.ultimo_recuento_at)} · {r.ultimo_recuento_por ?? "—"}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <NumInput value={vMp[r.materia_prima_id] ?? ""} onChange={(v) => setVMp({ ...vMp, [r.materia_prima_id]: v })} />
-                      <span className="w-8 text-sm text-muted-foreground">{r.unidad}</span>
-                    </div>
+      <div className="grid gap-5 xl:grid-cols-2">
+        <Panel titulo="Materias primas" nota="Corrige el valor estimado con lo que cuentes">
+          <Estado q={mp} vacio="No hay materias primas">
+            {[...(mp.data ?? [])]
+              .sort((a, b) => String(a.nombre).localeCompare(String(b.nombre), "es"))
+              .map((r) => (
+                <div key={r.materia_prima_id} className="flex items-center justify-between gap-2 border-t border-border py-2">
+                  <div>
+                    <p className="text-base font-medium">{r.nombre}</p>
+                    <p className="text-xs text-muted-foreground">
+                      Actualizado {fmtFecha(r.ultimo_recuento_at)} por {r.ultimo_recuento_por ?? "—"}
+                    </p>
                   </div>
-                ))}
-              </div>
-            ))}
-          </div>
-        </Estado>
-      </Panel>
-      <Panel titulo="Producto terminado" nota="Kg en el obrador">
-        <Estado q={pt} vacio="No hay producto terminado">
-          <div className="grid gap-4 lg:grid-cols-2">
-            {agrupar(pt.data ?? [], (r) => r.tipo).map(([tipo, rows]) => (
-              <div key={tipo} className="rounded-lg bg-secondary/60 p-3">
-                <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-primary">{TIPO_LABEL[tipo] ?? tipo}</p>
-                {rows.map((r) => (
-                  <div key={r.elaboracion_id} className="flex items-center justify-between gap-2 border-t border-border py-2">
-                    <div>
-                      <p className="text-base font-medium">{r.nombre}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {fmtFecha(r.ultimo_recuento_at)} · {r.ultimo_recuento_por ?? "—"}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <NumInput value={vPt[r.elaboracion_id] ?? ""} onChange={(v) => setVPt({ ...vPt, [r.elaboracion_id]: v })} />
-                      <span className="w-8 text-sm text-muted-foreground">kg</span>
-                    </div>
+                  <div className="flex items-center gap-2">
+                    <NumInput value={vMp[r.materia_prima_id] ?? ""} onChange={(v) => setVMp({ ...vMp, [r.materia_prima_id]: v })} />
+                    <span className="w-8 text-sm text-muted-foreground">{r.unidad}</span>
                   </div>
-                ))}
-              </div>
-            ))}
-          </div>
-        </Estado>
-      </Panel>
+                </div>
+              ))}
+          </Estado>
+        </Panel>
+        <Panel titulo="Producto terminado" nota="Kg en el obrador">
+          <Estado q={pt} vacio="No hay producto terminado">
+            {[...(pt.data ?? [])]
+              .sort((a, b) => String(a.nombre).localeCompare(String(b.nombre), "es"))
+              .map((r) => (
+                <div key={r.elaboracion_id} className="flex items-center justify-between gap-2 border-t border-border py-2">
+                  <div>
+                    <p className="text-base font-medium">{r.nombre}</p>
+                    <p className="text-xs text-muted-foreground">
+                      Actualizado {fmtFecha(r.ultimo_recuento_at)} por {r.ultimo_recuento_por ?? "—"}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <NumInput value={vPt[r.elaboracion_id] ?? ""} onChange={(v) => setVPt({ ...vPt, [r.elaboracion_id]: v })} />
+                    <span className="w-8 text-sm text-muted-foreground">kg</span>
+                  </div>
+                </div>
+              ))}
+          </Estado>
+        </Panel>
+      </div>
       <div className="flex flex-wrap items-center gap-4">
         <Button className="h-14 px-10 text-xl" disabled={guardando || !mp.data || !pt.data} onClick={guardar}>
           {guardando ? "Guardando…" : "Guardar recuento"}
