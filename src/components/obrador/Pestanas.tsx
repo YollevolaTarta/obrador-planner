@@ -201,7 +201,7 @@ export function ProduccionTab() {
                           <td className="py-2 text-right tabular-nums">{fmt(r.kg_vendidos)}</td>
                           <td className="py-2 text-right tabular-nums">{fmt(r.kg_stock_obrador)}</td>
                           <td className="py-2 text-right tabular-nums">{fmt(r.kg_stock_tiendas)}</td>
-                          <td className={`py-2 text-right num-xl text-base text-right ${destacar ? "text-foreground" : ""}`}>
+                          <td className={`py-2 text-right num-xl text-base ${destacar ? "text-foreground" : ""}`}>
                             {fmt(r.kg_sugeridos)}
                           </td>
                           <td className="py-2 pl-3">
@@ -349,7 +349,7 @@ export function EnviarTab() {
   }
 
   const badge = (e: string) =>
-    e === "recibido" ? "bg-success text-background" : e === "incidencia" ? "bg-alert text-foreground" : "bg-warning text-background";
+    e === "recibido" ? "bg-success text-primary-foreground" : e === "incidencia" ? "bg-alert text-destructive-foreground" : "bg-warning text-primary-foreground";
 
   return (
     <div className="space-y-5">
@@ -669,7 +669,7 @@ export function DesviacionTab() {
                     <td className="py-2 text-base">{r.nombre}</td>
                     <td className="py-2 text-right tabular-nums">{fmt(r.teorico)} {r.unidad}</td>
                     <td className="py-2 text-right tabular-nums">{fmt(r.real)} {r.unidad}</td>
-                    <td className={`py-2 text-right num-xl text-base text-right ${color}`}>
+                    <td className={`py-2 text-right num-xl text-base ${color}`}>
                       {desv === null ? "sin teórico" : `${desv > 0 ? "+" : ""}${fmt(desv, 1)} %`}
                     </td>
                   </tr>

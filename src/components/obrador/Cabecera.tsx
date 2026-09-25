@@ -35,7 +35,7 @@ export function Cabecera({ email }: { email: string }) {
       <div className="mt-2 space-y-1 text-sm sm:text-sm">
         {(resumen.data ?? []).map((r: Row, i: number) => (
           <p key={i}>
-            <span className="font-semibold text-primary">{r.tienda}</span> · Tienda {r.tartas_tienda} · Web{" "}
+            <span className="font-semibold text-foreground">{r.tienda}</span> · Tienda {r.tartas_tienda} · Web{" "}
             {r.tartas_web} (por entregar: {r.envios_por_entregar}) · Decoraciones sorpresa {r.decoraciones_sorpresa}
           </p>
         ))}
