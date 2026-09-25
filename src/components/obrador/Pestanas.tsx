@@ -368,9 +368,9 @@ export function EnviarTab() {
         </Estado>
         <div className="mt-4">
           <Estado q={pt} vacio="No hay elaboraciones">
-            <div className="grid gap-x-8 lg:grid-cols-2">
-              {(pt.data ?? []).map((r) => (
-                <div key={r.elaboracion_id} className="flex items-center justify-between gap-2 border-t border-border py-2">
+            <div className="lg:columns-2 gap-x-8">
+              {[...(pt.data ?? [])].sort((a, b) => String(a.nombre).localeCompare(String(b.nombre), "es")).map((r) => (
+                <div key={r.elaboracion_id} className="break-inside-avoid flex items-center justify-between gap-2 border-t border-border py-2">
                   <div>
                     <p className="text-base font-medium">{r.nombre}</p>
                     <p className="text-sm text-muted-foreground">En obrador: {fmtG(r.kg)} g</p>
