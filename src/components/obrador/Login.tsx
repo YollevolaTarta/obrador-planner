@@ -21,14 +21,14 @@ export function Login() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <Card className="w-full max-w-md p-6">
-        <p className="text-sm font-bold uppercase tracking-[0.2em] text-primary">Yo Llevo la Tarta</p>
-        <h1 className="text-2xl font-bold">Dashboard obrador</h1>
+      <Card className="w-full max-w-sm rounded-2xl border border-border bg-card p-8 shadow-none">
+        <p className="text-sm font-semibold text-foreground before:mb-4 before:block before:h-1 before:w-10 before:rounded-full before:bg-brand before:content-['']">Yo Llevo la Tarta</p>
+        <h1 className="mt-2 text-lg font-semibold tracking-tight">Dashboard obrador</h1>
         <form onSubmit={entrar} className="mt-4 space-y-3">
-          <Input type="email" required placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="h-12 text-lg" />
-          <Input type="password" required placeholder="Contraseña" value={pass} onChange={(e) => setPass(e.target.value)} className="h-12 text-lg" />
-          {error ? <p className="font-semibold text-brand-red">{error}</p> : null}
-          <Button type="submit" disabled={cargando} className="h-12 w-full text-lg">
+          <Input type="email" required placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="h-11 rounded-lg text-sm" />
+          <Input type="password" required placeholder="Contraseña" value={pass} onChange={(e) => setPass(e.target.value)} className="h-11 rounded-lg text-sm" />
+          {error ? <p className="text-sm font-medium text-alert">{error}</p> : null}
+          <Button type="submit" disabled={cargando} className="h-11 w-full rounded-lg text-sm">
             {cargando ? "Entrando…" : "Entrar"}
           </Button>
         </form>

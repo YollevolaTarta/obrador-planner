@@ -12,13 +12,13 @@ export function Cabecera({ email }: { email: string }) {
   const ultima = (tanda.data as Row[] | undefined)?.[0];
 
   return (
-    <header className="sticky top-0 z-10 border-b border-border bg-background/95 px-4 py-3 backdrop-blur sm:px-6">
+    <header className="sticky top-0 z-10 border-b border-border bg-card/90 px-4 py-3 backdrop-blur sm:px-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <span className="text-sm font-bold uppercase tracking-[0.2em] text-primary">Yo Llevo la Tarta</span>
-          <h1 className="text-lg font-bold sm:text-xl">Dashboard obrador</h1>
+          <span className="text-sm font-semibold text-foreground before:mr-2 before:inline-block before:h-2.5 before:w-2.5 before:rounded-full before:bg-brand before:content-['']">Yo Llevo la Tarta</span>
+          <h1 className="text-sm font-normal text-muted-foreground">Dashboard obrador</h1>
         </div>
-        <p className="text-base">
+        <p className="text-sm">
           {tanda.isLoading
             ? "Cargando…"
             : ultima
@@ -27,12 +27,12 @@ export function Cabecera({ email }: { email: string }) {
         </p>
         <div className="flex items-center gap-3">
           <span className="text-sm text-muted-foreground">{email}</span>
-          <Button variant="secondary" className="h-11 px-5" onClick={() => sb().auth.signOut()}>
+          <Button variant="outline" className="h-11 rounded-lg px-5 shadow-none" onClick={() => sb().auth.signOut()}>
             Salir
           </Button>
         </div>
       </div>
-      <div className="mt-2 space-y-1 text-sm sm:text-base">
+      <div className="mt-2 space-y-1 text-sm sm:text-sm">
         {(resumen.data ?? []).map((r: Row, i: number) => (
           <p key={i}>
             <span className="font-semibold text-primary">{r.tienda}</span> · Tienda {r.tartas_tienda} · Web{" "}
@@ -41,7 +41,7 @@ export function Cabecera({ email }: { email: string }) {
         ))}
       </div>
       {(sinEnlazar.data ?? []).length > 0 ? (
-        <div className="mt-2 rounded-md bg-warn px-3 py-2 font-semibold text-background">
+        <div className="mt-2 rounded-xl border border-warning/40 bg-card px-4 py-3 text-sm font-medium text-warning">
           Hay ventas con sabores que no se reconocen:{" "}
           {(sinEnlazar.data as Row[]).map((r) => `${r.nombre_menu} (${r.veces})`).join(", ")}
         </div>

@@ -26,20 +26,20 @@ export function Estado({
   vacio?: string;
   children: ReactNode;
 }) {
-  if (q.isLoading) return <p className="py-6 text-lg text-muted-foreground">Cargando…</p>;
+  if (q.isLoading) return <p className="py-8 text-center text-sm text-muted-foreground">Cargando…</p>;
   if (q.error)
-    return <p className="py-6 text-lg font-semibold text-brand-red">Error: {q.error.message}</p>;
+    return <p className="rounded-xl border border-border bg-card px-4 py-3 text-sm font-medium text-alert">Error: {q.error.message}</p>;
   if (vacio && Array.isArray(q.data) && q.data.length === 0)
-    return <p className="py-6 text-lg text-muted-foreground">{vacio}</p>;
+    return <p className="py-8 text-center text-sm text-muted-foreground">{vacio}</p>;
   return <>{children}</>;
 }
 
 export function Panel({ titulo, nota, children }: { titulo: string; nota?: ReactNode; children: ReactNode }) {
   return (
-    <Card className="gap-0 p-4 sm:p-6">
+    <Card className="gap-0 rounded-2xl border border-border bg-card p-5 shadow-none sm:p-6">
       <div className="mb-4 flex flex-wrap items-baseline gap-x-3">
-        <h2 className="text-xl font-bold text-primary sm:text-2xl">{titulo}</h2>
-        {nota ? <span className="text-sm text-muted-foreground">{nota}</span> : null}
+        <h2 className="text-sm font-semibold tracking-tight text-foreground">{titulo}</h2>
+        {nota ? <span className="text-xs text-muted-foreground">{nota}</span> : null}
       </div>
       {children}
     </Card>
@@ -61,7 +61,7 @@ export function NumInput({
       value={value}
       placeholder="0,00"
       onChange={(e) => onChange(e.target.value.replace(/[^\d.,-]/g, ""))}
-      className={`h-12 w-32 text-right text-lg tabular-nums ${className}`}
+      className={`h-11 w-28 rounded-lg border-input text-right text-sm tabular-nums ${className}`}
     />
   );
 }
@@ -74,7 +74,7 @@ export function Sparkline({ valores }: { valores: number[] }) {
     .map((v, i) => `${(i / (valores.length - 1)) * 100},${28 - ((v - min) / (max - min || 1)) * 24}`)
     .join(" ");
   return (
-    <svg viewBox="0 0 100 30" preserveAspectRatio="none" className="h-8 w-28 text-primary">
+    <svg viewBox="0 0 100 30" preserveAspectRatio="none" className="h-8 w-28 text-brand">
       <polyline points={puntos} fill="none" stroke="currentColor" strokeWidth={2} vectorEffect="non-scaling-stroke" />
     </svg>
   );
