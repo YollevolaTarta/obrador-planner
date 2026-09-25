@@ -528,6 +528,47 @@ export function StockTab() {
         </Estado>
       </Panel>
 
+      <Panel titulo="Últimas entradas" nota="Si una entrada está mal, anúlala y registra la buena">
+        <Estado q={entradas} vacio="Aún no hay entradas">
+          <div className="space-y-1">
+            {(entradas.data ?? []).map((r) => {
+              const anulada = !!r.anulada_at;
+              return (
+                <div key={r.id} className={`flex items-center justify-between gap-2 border-t border-border py-2 ${anulada ? "opacity-50" : ""}`}>
+                  <p className={`text-base ${anulada ? "line-through text-muted-foreground" : ""}`}>
+                    +{fmt(r.cantidad)} {r.unidad} {r.nombre} · {fmtFecha(r.created_at)} · {r.usuario_email ?? "—"}
+                    {anulada ? (
+                      <span className="block text-xs text-muted-foreground">Anulada {fmtFecha(r.anulada_at)} por {r.anulada_email ?? "—"}</span>
+                    ) : null}
+                  </p>
+                  {anulada ? null : (
+                    <Button variant="secondary" className="h-11" onClick={() => { setAnularError(null); setAnular(r); }}>Anular</Button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </Estado>
+      </Panel>
+
+      <Dialog open={anular !== null} onOpenChange={(v) => !v && setAnular(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>¿Anular la entrada?</DialogTitle>
+          </DialogHeader>
+          <p className="text-lg">
+            ¿Anular la entrada de {fmt(anular?.cantidad)} {anular?.unidad} de {anular?.nombre}? Dejará de contar en el stock.
+          </p>
+          {anularError ? <p className="font-semibold text-brand-red">{anularError}</p> : null}
+          <DialogFooter>
+            <Button className="h-12 w-full text-lg" disabled={anulando} onClick={anularEntrada}>
+              {anulando ? "Anulando…" : "Anular entrada"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+
       <Dialog open={dialogo !== null} onOpenChange={(v) => !v && setDialogo(null)}>
         <DialogContent>
           <DialogHeader>
